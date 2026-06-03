@@ -1,5 +1,112 @@
 ---
-title: "r-package"
-format: html
+title: "My R Package: knntuner"
 ---
 
+## Overview
+
+`knntuner` is an R package I developed for my Advanced Data Computing course. The package is designed to streamline parts of the K-nearest neighbors modeling workflow in `caret` by helping users create tuning grids, define cross-validation settings, and identify the best-performing value of \(k\).
+
+The goal of the package is to make KNN tuning more efficient and accessible for students learning statistical machine learning in R, especially for students in STATS 205 - Statistical Machine Learning at Lawrence University. Please see the Github Repo and package website (below!) for more information.
+
+## Package Purpose
+
+K-nearest neighbors models often require repeated code for cross-validation and tuning different values of \(k\) when working with the `caret` package. `knntuner` helps simplify this workflow through a small set of helper functions.
+
+## Main Functions
+
+- `kgrid()` creates a data frame of candidate \(k\) values for model tuning.
+- `cv_control()` creates cross-validation specifications using `caret`.
+- `bestk()` identifies the best-performing \(k\) value from a trained model.
+
+## Example Workflow
+
+The package includes a simulated student performance dataset called `student_knn_data`. Below, I go through a sample workflow using `knntuner` and its dataset `student_knn_data`.
+
+In the example, make sure to run each of the code chunks in the same order that they are presented below - they represent the basic statistical machine learning workflow. Please see the vignette on the package website for more detailed information on each package function, and ways to customize their outputs.
+
+### Installation
+
+You can install the development version of `knntuner` from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("remotes")
+# install.packages("devtools")
+devtools::install_github("ADC-405-S26/knntuner")
+```
+
+### Workflow
+
+This is a basic example which shows how `knntuner` can be used in the STATS 205 KNN model building and tuning workflow.
+
+```{r example, message = FALSE}
+library(knntuner)
+library(rsample)
+library(caret)
+library(recipes)
+# necessary packages
+```
+
+In this package, there is a small simulated dataset of 100 observations in 6 variables. The data measure student characteristics, and track their performance. A head of the dataset can be seen below, and further information on each variable can be found in the vignette on the package website.
+
+```{r}
+head(student_knn_data) # simulated dataset as a part of knntuner (100 observations)
+```
+
+
+First, start with the standard split of data into a training set and a test set. This example uses the student dataset built into the package.
+
+```{r}
+set.seed(208)
+
+knntuner_data_split <- initial_split(data = student_knn_data, prop = 0.8) # setting training data to be 80%, and test data to be 20%, and saving these settings as an object
+
+student_train <- training(knntuner_data_split) # training data
+student_test  <- testing(knntuner_data_split) # test data
+```
+
+Next, create a recipe to remove the ID column, dummy-code categorical predictors, and scale the numeric predictors for KNN, to prepare the data for analysis.
+
+```{r}
+student_recipe <- recipe(pass ~ ., data = student_train) |>
+  step_rm(id) |> # ID will not be used as a predictor
+  step_dummy(all_nominal_predictors()) |> # dummy encoding nominal categorical variables
+  step_center(all_numeric_predictors()) |> # normalizing numeric values step 1
+  step_scale(all_numeric_predictors()) # normalizing numeric values step 2
+```
+
+
+Then, define your cross-validation specifications with the `cv_control` function.
+
+```{r}
+cv <- cv_control() # creating the cv specifications and storing them as cv
+```
+
+Next, you can train and cross-validate your model using the specifications that you set. Firstly, use the `kgrid` function to quickly create a dataframe to hold the cross-validation results for each k value. `kgrid` allows you to choose the minimum and maximum k values to test, as well as the step size to take.
+
+```{r}
+set.seed(208)
+
+k_grid <- kgrid(1, 9, 2) # knntuner function here, creating the desired kgrid and storing it as an object
+
+student_model <- train(
+  student_recipe,
+  data = student_train,
+  method = "knn",
+  trControl = cv, # knntuner object here!
+  tuneGrid = k_grid, # knntuner object here!
+  metric = "Sens"
+)
+```
+
+Finally, use the `bestk` function to identify the best performing k value to choose for your final model! Now, you can move on to training your final model, and analyzing its performance on the test data.
+
+```{r}
+bestk(student_model) # finding the optimal k value!
+```
+
+
+
+## Project Materials
+
+- [View GitHub Repository](https://github.com/ADC-405-S26/knntuner)
+- [View Package Website](https://adc-405-s26.github.io/knntuner/)

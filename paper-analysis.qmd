@@ -1,5 +1,29 @@
 ---
-title: "paper-analysis"
+title: "Statistical Modeling: The Two Cultures"
 format: html
 ---
 
+## Overview
+
+In my final project in my advanced data computing class, Binh Vu and I analyzed and produced a poster in R about a paper called "Statistical Modeling: The Two Cultures," which was written by Leo Breiman in 2001. We discussed how he passionately backed algorithmic modeling (he invented Random Forests!) in a statistical culture that, at the time, mainly used data modeling.
+
+## Main Argument
+
+Breiman argued that algorithmic modeling should be a significant part of a statistician's toolbox. He believed that statisticians were choosing to use data models out of habit, rather than allowing their goals and datasets to guide their methods. He highlighted that robustness checks for data models were not as strong as they seemed, and thoughtlessly using the wrong model would lead to biased results. He suggested that, when predictive power was a higher priority than interpretability, algorithmic models would be a better choice for data scientists.
+
+## Tradeoffs
+
+But when a statistician decides to use an algorithmic model, they must trade away their model's interpretability. Algorithmic models' functions are much more complicated compared to those of straightforward data models. They treat the black box of nature as unknown, and strive to create a complicated function that emulates nature as well as possible. Data models attempt to cleanly map out the relationships within the black box of nature, and thus must inherently be more simple for human interpretation. 
+
+In this manner, choosing a method between the two cultures of data and algorithmic modeling becomes a balancing act of what to prioritize: interpretability, or prediction accuracy? The correct answer lies in the context of the problem. For example, in predicting patient outcomes, algorithmic models may be the better choice for their superior predictive ability. However, when exploring relationships, such as how age affects salary, data models likely fit the problem and the goals of the statistician better.
+
+## Impact
+
+Since the paper was published, algorithmic models have become more and more common, especially because the problems data scientists face have become more and more complicated. With lots of variables, weak contributing signals across many features, and highly non-linear data structures, these problems suit algorithmic models well. Breiman predicted that this would happen as the problems we face advance.
+
+Over a quarter of a century ago, however, algorithmic models were much less common. This paper advocated for their use, and opened the door to a whole new side of data science, with new and exciting capabilities. Since then, we have seen large strides in these complex models, which have even eventually led to large language models and AI. Algorithmic models continue to be developed and explored, and likely will play a part in solving many pressing questions in this century.
+
+
+## Project Materials
+
+- [View Poster](files/printedposter.pdf)

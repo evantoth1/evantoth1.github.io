@@ -1,5 +1,61 @@
 [
   {
+    "objectID": "sql-project.html",
+    "href": "sql-project.html",
+    "title": "SQL Project",
+    "section": "",
+    "text": "NOTE: This project was completed jointly with Daisy (Nga) Nguyen. This page highlights the overall database setup we did together and my individual sections of the project."
+  },
+  {
+    "objectID": "sql-project.html#overview",
+    "href": "sql-project.html#overview",
+    "title": "SQL Project",
+    "section": "Overview",
+    "text": "Overview\nFor this project, my partner and I designed and queried a relational database using data from NASA’s Exoplanet Archive. The goal of the project was to examine patterns in exoplanet discoveries, including how discovery methods have changed over time and which methods are responsible for the largest number of confirmed exoplanet discoveries.\nThe project involved cleaning CSV files, importing them into a DuckDB database, designing simplified relational tables, writing SQL queries, and creating visualizations in R."
+  },
+  {
+    "objectID": "sql-project.html#load-packages-and-connect-to-database",
+    "href": "sql-project.html#load-packages-and-connect-to-database",
+    "title": "SQL Project",
+    "section": "Load Packages and Connect to Database",
+    "text": "Load Packages and Connect to Database\n\nlibrary(DBI)\nlibrary(duckdb)\nlibrary(readr)\nlibrary(tidyverse)\n\n\n# Create a DuckDB database connection.\n# This allows SQL queries to be run inside the Quarto document.\ncon_nasa &lt;- dbConnect(duckdb::duckdb(), dbdir = \"nasa_db\")"
+  },
+  {
+    "objectID": "sql-project.html#accessing-and-cleaning-the-data",
+    "href": "sql-project.html#accessing-and-cleaning-the-data",
+    "title": "SQL Project",
+    "section": "Accessing and Cleaning the Data",
+    "text": "Accessing and Cleaning the Data\n\n# Read in the original CSV files.\n# The comment = \"#\" argument skips metadata/comment lines at the top of the files.\nplanet_data &lt;- readr::read_csv(\"planet_data.csv\", comment = \"#\")\nplanet_discovery &lt;- readr::read_csv(\"planet_discovery.csv\", comment = \"#\")\nstar_data &lt;- readr::read_csv(\"star_data.csv\", comment = \"#\")\n\n# Save cleaned versions of the datasets so they can be imported into DuckDB.\nreadr::write_csv(planet_data, \"planet_data_clean.csv\")\nreadr::write_csv(planet_discovery, \"planet_discovery_clean.csv\")\nreadr::write_csv(star_data, \"star_data_clean.csv\")"
+  },
+  {
+    "objectID": "sql-project.html#importing-the-data-into-sql",
+    "href": "sql-project.html#importing-the-data-into-sql",
+    "title": "SQL Project",
+    "section": "Importing the Data into SQL",
+    "text": "Importing the Data into SQL\n\n-- Drop old versions of the tables if they already exist.\n-- This makes the document reproducible if it is rendered multiple times.\nDROP TABLE IF EXISTS planet_data;\nDROP TABLE IF EXISTS planet_discovery;\nDROP TABLE IF EXISTS star_data;\n\n\n-- Create a table containing planet names, host stars, and orbital periods.\nCREATE TABLE planet_data (\n  pl_name VARCHAR(255),\n  hostname VARCHAR(255),\n  pl_orbper DOUBLE\n);\n\n\n-- Import the cleaned planet data CSV into the SQL table.\nCOPY planet_data\nFROM 'planet_data_clean.csv'\n(FORMAT CSV, HEADER, NULL 'NA');\n\n\n-- Create a table containing planet discovery methods and discovery years.\nCREATE TABLE planet_discovery (\n  pl_name VARCHAR(255),\n  discoverymethod VARCHAR(255),\n  disc_year INTEGER\n);\n\n\n-- Import the cleaned discovery data CSV into the SQL table.\nCOPY planet_discovery\nFROM 'planet_discovery_clean.csv'\n(FORMAT CSV, HEADER, NULL 'NA');\n\n\n-- Create a table containing host star characteristics.\nCREATE TABLE star_data (\n  hostname VARCHAR(255),\n  sy_pnum INTEGER,\n  st_rad DOUBLE,\n  st_mass DOUBLE\n);\n\n\n-- Import the cleaned star data CSV into the SQL table.\nCOPY star_data\nFROM 'star_data_clean.csv'\n(FORMAT CSV, HEADER, NULL 'NA');"
+  },
+  {
+    "objectID": "sql-project.html#database-design",
+    "href": "sql-project.html#database-design",
+    "title": "SQL Project",
+    "section": "Database Design",
+    "text": "Database Design\nThe original NASA Exoplanet Archive data contained repeated measurements for some planets and host stars. To create cleaner tables for analysis, I grouped observations by planet name and host star, then summarized repeated measurements using averages or maximum values where appropriate.\n\n-- Create a cleaned planets table.\n-- Some planets appear more than once in the original data, so this table\n-- groups by planet and host star and uses the average orbital period.\nCREATE OR REPLACE TABLE planets AS\nSELECT\n  pl_name,\n  hostname,\n  AVG(pl_orbper) AS pl_orbper\nFROM planet_data\nWHERE pl_orbper IS NOT NULL\nGROUP BY pl_name, hostname\nORDER BY pl_name;\n\n\n-- Create a cleaned discoveries table.\n-- DISTINCT removes duplicate rows, while the WHERE clause keeps only\n-- planets with a recorded discovery year.\nCREATE OR REPLACE TABLE discoveries AS\nSELECT DISTINCT\n  pl_name,\n  discoverymethod,\n  disc_year\nFROM planet_discovery\nWHERE disc_year IS NOT NULL\nORDER BY pl_name;\n\n\n-- Create a cleaned stars table.\n-- MAX(sy_pnum) keeps the maximum reported number of planets for each host star.\n-- AVG(st_rad) and AVG(st_mass) take averages for repeated measurements of\n-- stellar radius and mass\nCREATE OR REPLACE TABLE stars AS\nSELECT\n  hostname,\n  MAX(sy_pnum) AS sy_pnum,\n  AVG(st_rad) AS st_rad,\n  AVG(st_mass) AS st_mass\nFROM star_data\nGROUP BY hostname\nORDER BY hostname;\n\n\n-- Check that the cleaned tables were created successfully.\nSHOW TABLES;\n\n\n6 records\n\n\nname\n\n\n\n\ndiscoveries\n\n\nplanet_data\n\n\nplanet_discovery\n\n\nplanets\n\n\nstar_data\n\n\nstars"
+  },
+  {
+    "objectID": "sql-project.html#examining-planet-discovery-patterns",
+    "href": "sql-project.html#examining-planet-discovery-patterns",
+    "title": "SQL Project",
+    "section": "Examining Planet Discovery Patterns",
+    "text": "Examining Planet Discovery Patterns\nIn this section, I examined patterns in exoplanet discoveries and discovery methods over time.\n\nQuery 1\n\n-- Count the number of planets discovered by each discovery method.\n-- This helps identify which methods account for the most confirmed discoveries.\nSELECT discoverymethod, COUNT(*) AS n_planets\nFROM discoveries\nGROUP BY discoverymethod\nORDER BY n_planets DESC;\n\n\nDisplaying records 1 - 10\n\n\ndiscoverymethod\nn_planets\n\n\n\n\nTransit\n4522\n\n\nRadial Velocity\n1180\n\n\nMicrolensing\n278\n\n\nImaging\n96\n\n\nTransit Timing Variations\n40\n\n\nEclipse Timing Variations\n17\n\n\nOrbital Brightness Modulation\n9\n\n\nPulsar Timing\n8\n\n\nAstrometry\n6\n\n\nPulsation Timing Variations\n2\n\n\n\n\n\nThe transit and radial velocity methods were responsible for the majority of planet discoveries. The transit method involves detecting changes in a star’s brightness when a planet passes in front of it, while the radial velocity method detects small movements in a star caused by the gravitational pull of orbiting planets.\n\n\nQuery 2\n\n-- Count the number of planets discovered in each year.\nSELECT disc_year, COUNT(*) AS n_planets\nFROM discoveries\nGROUP BY disc_year\nORDER BY disc_year;\n\n\nDisplaying records 1 - 10\n\n\ndisc_year\nn_planets\n\n\n\n\n1992\n2\n\n\n1994\n1\n\n\n1995\n1\n\n\n1996\n6\n\n\n1997\n1\n\n\n1998\n6\n\n\n1999\n13\n\n\n2000\n16\n\n\n2001\n12\n\n\n2002\n29\n\n\n\n\n\nThe query shows examines exoplanet discovery amounts changed over time per year, beginning with the first confirmed discoveries in the early 1990s. It is saved as a dataframe df1 for the visualization below.\n\n\nQuery 3\n\n-- Join the planets and discoveries tables to compare average orbital period\n-- by discovery method.\n-- HAVING COUNT(*) &gt;= 5 removes discovery methods with very small sample sizes.\nSELECT d.discoverymethod,\n       AVG(p.pl_orbper) AS avg_orbper,\n       COUNT(*) AS n_planets\nFROM planets AS p\nJOIN discoveries AS d\n  ON p.pl_name = d.pl_name\nGROUP BY d.discoverymethod\nHAVING COUNT(*) &gt;= 5\nORDER BY avg_orbper DESC;\n\n\n9 records\n\n\ndiscoverymethod\navg_orbper\nn_planets\n\n\n\n\nImaging\n1.702837e+07\n25\n\n\nMicrolensing\n3.971391e+03\n12\n\n\nEclipse Timing Variations\n3.488365e+03\n17\n\n\nRadial Velocity\n1.793152e+03\n1180\n\n\nPulsar Timing\n1.475802e+03\n7\n\n\nAstrometry\n8.652617e+02\n6\n\n\nTransit Timing Variations\n3.407882e+02\n40\n\n\nTransit\n2.442367e+01\n4522\n\n\nOrbital Brightness Modulation\n1.172688e+00\n9\n\n\n\n\n\nThe output above suggests that planets discovered through imaging tended to have much larger orbital periods on average. In contrast, methods such as orbital brightness modulation detected planets with much shorter average orbital periods.\n\n\nQuery 4\n\n-- Count the number of discovered planets around each host star.\n-- The LIMIT statement displays the ten host stars with the most planets.\nSELECT hostname, COUNT(*) AS n_planets\nFROM planets\nGROUP BY hostname\nORDER BY n_planets DESC\nLIMIT 10;\n\n\nDisplaying records 1 - 10\n\n\nhostname\nn_planets\n\n\n\n\nKOI-351\n8\n\n\nTRAPPIST-1\n7\n\n\nHD 191939\n6\n\n\nHD 34445\n6\n\n\nHIP 41378\n6\n\n\nKepler-20\n6\n\n\nHD 10180\n6\n\n\nKepler-11\n6\n\n\nHD 110067\n6\n\n\nK2-138\n6\n\n\n\n\n\nThis table shows that the largest number of discovered exoplanets around a single host star in this database was 8."
+  },
+  {
+    "objectID": "sql-project.html#visualization",
+    "href": "sql-project.html#visualization",
+    "title": "SQL Project",
+    "section": "Visualization",
+    "text": "Visualization\nThis visualization shows the number of exoplanets discovered over time.\n\nggplot(df1, aes(x = disc_year, y = n_planets)) +\n  geom_line() +\n  geom_point() +\n  labs(\n    title = \"Exoplanet Discoveries Over Time\",\n    x = \"Discovery Year\",\n    y = \"Number of Planets\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\n\nThe visualization highlights several major increases in exoplanet discoveries. These jumps reflect advances in technology and data analysis, including major results from the Kepler telescope and later analysis of Kepler data.\n\n# Close the database connection after all SQL queries are complete.\ndbDisconnect(con_nasa, shutdown = TRUE)"
+  },
+  {
     "objectID": "senior-project.html",
     "href": "senior-project.html",
     "title": "Senior Research Project",
@@ -25,14 +81,14 @@
     "href": "senior-project.html#data",
     "title": "Senior Research Project",
     "section": "Data",
-    "text": "Data\nI used country-level panel data for European countries from 1985 to 2004, with a final dataset containing 1,160 observations in 27 variables, across 29 countries. The dataset included emissions data, carbon tax adoption timing, and economic and environmental controls such as GDP per capita and average annual temperature."
+    "text": "Data\nI used country-level panel data for 29 European countries from 1985 to 2004, with a final dataset containing 1,160 observations across 27 variables. The dataset included emissions data, carbon tax adoption timing, and economic and environmental controls such as GDP per capita and average annual temperature."
   },
   {
     "objectID": "senior-project.html#methods",
     "href": "senior-project.html#methods",
     "title": "Senior Research Project",
     "section": "Methods",
-    "text": "Methods\nTo estimate the effects of carbon tax adoption, I used an Sun & Abraham event study framework with country and year fixed effects. This approach allowed me to compare emissions trends before and after carbon tax adoption while accounting for differences in adoption time, inherent country differences, and shocks across time."
+    "text": "Methods\nTo estimate the effects of carbon tax adoption, I used a Sun & Abraham event study framework with country and year fixed effects. This approach allowed me to compare emissions trends before and after carbon tax adoption while accounting for differences in adoption timing, inherent country differences, and shocks across time."
   },
   {
     "objectID": "senior-project.html#key-findings",
@@ -49,6 +105,48 @@
     "text": "Project Materials\n\nView GitHub Repository\nView Final Paper"
   },
   {
+    "objectID": "r-package.html",
+    "href": "r-package.html",
+    "title": "My R Package: knntuner",
+    "section": "",
+    "text": "knntuner is an R package I developed for my Advanced Data Computing course. The package is designed to streamline parts of the K-nearest neighbors modeling workflow in caret by helping users create tuning grids, define cross-validation settings, and identify the best-performing value of (k).\nThe goal of the package is to make KNN tuning more efficient and accessible for students learning statistical machine learning in R, especially for students in STATS 205 - Statistical Machine Learning at Lawrence University. Please see the Github Repo and package website (below!) for more information."
+  },
+  {
+    "objectID": "r-package.html#overview",
+    "href": "r-package.html#overview",
+    "title": "My R Package: knntuner",
+    "section": "",
+    "text": "knntuner is an R package I developed for my Advanced Data Computing course. The package is designed to streamline parts of the K-nearest neighbors modeling workflow in caret by helping users create tuning grids, define cross-validation settings, and identify the best-performing value of (k).\nThe goal of the package is to make KNN tuning more efficient and accessible for students learning statistical machine learning in R, especially for students in STATS 205 - Statistical Machine Learning at Lawrence University. Please see the Github Repo and package website (below!) for more information."
+  },
+  {
+    "objectID": "r-package.html#package-purpose",
+    "href": "r-package.html#package-purpose",
+    "title": "My R Package: knntuner",
+    "section": "Package Purpose",
+    "text": "Package Purpose\nK-nearest neighbors models often require repeated code for cross-validation and tuning different values of (k) when working with the caret package. knntuner helps simplify this workflow through a small set of helper functions."
+  },
+  {
+    "objectID": "r-package.html#main-functions",
+    "href": "r-package.html#main-functions",
+    "title": "My R Package: knntuner",
+    "section": "Main Functions",
+    "text": "Main Functions\n\nkgrid() creates a data frame of candidate (k) values for model tuning.\ncv_control() creates cross-validation specifications using caret.\nbestk() identifies the best-performing (k) value from a trained model."
+  },
+  {
+    "objectID": "r-package.html#example-workflow",
+    "href": "r-package.html#example-workflow",
+    "title": "My R Package: knntuner",
+    "section": "Example Workflow",
+    "text": "Example Workflow\nThe package includes a simulated student performance dataset called student_knn_data. Below, I go through a sample workflow using knntuner and its dataset student_knn_data.\nIn the example, make sure to run each of the code chunks in the same order that they are presented below - they represent the basic statistical machine learning workflow. Please see the vignette on the package website for more detailed information on each package function, and ways to customize their outputs.\n\nInstallation\nYou can install the development version of knntuner from GitHub with:\n# install.packages(\"remotes\")\n# install.packages(\"devtools\")\ndevtools::install_github(\"ADC-405-S26/knntuner\")\n\n\nWorkflow\nThis is a basic example which shows how knntuner can be used in the STATS 205 KNN model building and tuning workflow.\n\nlibrary(knntuner)\nlibrary(rsample)\nlibrary(caret)\nlibrary(recipes)\n# necessary packages\n\nIn this package, there is a small simulated dataset of 100 observations in 6 variables. The data measure student characteristics, and track their performance. A head of the dataset can be seen below, and further information on each variable can be found in the vignette on the package website.\n\nhead(student_knn_data) # simulated dataset as a part of knntuner (100 observations)\n\n  id age study_hours     score private_tutoring pass\n1  1  18          12 100.00000               NO  YES\n2  2  21           7  66.49531              YES   NO\n3  3  18          10  82.54343              YES  YES\n4  4  18           8  50.57019              YES   NO\n5  5  20          12  85.38308              YES  YES\n6  6  21           5  63.46618              YES   NO\n\n\nFirst, start with the standard split of data into a training set and a test set. This example uses the student dataset built into the package.\n\nset.seed(208)\n\nknntuner_data_split &lt;- initial_split(data = student_knn_data, prop = 0.8) # setting training data to be 80%, and test data to be 20%, and saving these settings as an object\n\nstudent_train &lt;- training(knntuner_data_split) # training data\nstudent_test  &lt;- testing(knntuner_data_split) # test data\n\nNext, create a recipe to remove the ID column, dummy-code categorical predictors, and scale the numeric predictors for KNN, to prepare the data for analysis.\n\nstudent_recipe &lt;- recipe(pass ~ ., data = student_train) |&gt;\n  step_rm(id) |&gt; # ID will not be used as a predictor\n  step_dummy(all_nominal_predictors()) |&gt; # dummy encoding nominal categorical variables\n  step_center(all_numeric_predictors()) |&gt; # normalizing numeric values step 1\n  step_scale(all_numeric_predictors()) # normalizing numeric values step 2\n\nThen, define your cross-validation specifications with the cv_control function.\n\ncv &lt;- cv_control() # creating the cv specifications and storing them as cv\n\nNext, you can train and cross-validate your model using the specifications that you set. Firstly, use the kgrid function to quickly create a dataframe to hold the cross-validation results for each k value. kgrid allows you to choose the minimum and maximum k values to test, as well as the step size to take.\n\nset.seed(208)\n\nk_grid &lt;- kgrid(1, 9, 2) # knntuner function here, creating the desired kgrid and storing it as an object\n\nstudent_model &lt;- train(\n  student_recipe,\n  data = student_train,\n  method = \"knn\",\n  trControl = cv, # knntuner object here!\n  tuneGrid = k_grid, # knntuner object here!\n  metric = \"Sens\"\n)\n\nFinally, use the bestk function to identify the best performing k value to choose for your final model! Now, you can move on to training your final model, and analyzing its performance on the test data.\n\nbestk(student_model) # finding the optimal k value!\n\n  k       ROC      Sens      Spec     ROCSD     SensSD    SpecSD\n4 7 0.9443204 0.9277778 0.8642857 0.0415595 0.06617294 0.1014877"
+  },
+  {
+    "objectID": "r-package.html#project-materials",
+    "href": "r-package.html#project-materials",
+    "title": "My R Package: knntuner",
+    "section": "Project Materials",
+    "text": "Project Materials\n\nView GitHub Repository\nView Package Website"
+  },
+  {
     "objectID": "about.html",
     "href": "about.html",
     "title": "About",
@@ -63,6 +161,97 @@
     "text": "Hi! I’m Evan Toth, a graduate of Lawrence University with a Bachelor of Arts degree in Economics–Mathematics and a minor in Data Science and Statistics. I am interested in using data analysis, teamwork, and clear communication to better understand and solve complex real-world problems.\nThis website serves as my personal data science portfolio. It includes projects from my statistics and data science coursework, including work in statistical machine learning, text analysis, SQL, and applied modeling. I will also use this site to highlight professional experiences, independent projects, and other work that reflects my growth as a recent graduate and aspiring data analyst.\nOutside of academics, I was the captain of the Lawrence men’s soccer team and enjoy playing guitar, singing, dance, and cross-cultural creative projects. In my junior year of university, I had the opportunity to study abroad at Yonsei University, in South Korea. In my free time, I run a music social media account, where I share Korean and English pop music across cultures. These experiences have shaped how I work with others, communicate ideas, and approach challenges creatively.\nPlease visit my projects page to see examples of my work.\n\n         \n\nThe code for this website is available on GitHub."
   },
   {
+    "objectID": "text-analysis.html",
+    "href": "text-analysis.html",
+    "title": "Text Analysis - How Does the BBC Frame Sports News?",
+    "section": "",
+    "text": "NOTE: This project was completed jointly with Frank (Minh) Nguyen. This page highlights the sections of the project that I primarily worked on, and where we collaborated."
+  },
+  {
+    "objectID": "text-analysis.html#overview",
+    "href": "text-analysis.html#overview",
+    "title": "Text Analysis - How Does the BBC Frame Sports News?",
+    "section": "Overview",
+    "text": "Overview\nFor this project, my partner and I used text analysis methods to examine how BBC Sport framed different sports through language and sentiment. We analyzed a dataset of BBC Sport articles from 2004 to 2005, focusing on how word choice, headline sentiment, and sport-specific vocabulary differed across categories such as football, cricket, rugby, tennis, and athletics.\nThe project involved cleaning raw text files, tokenizing article text, removing stop words, calculating sentiment scores, using tf-idf to identify distinctive words, and creating visualizations to interpret patterns in sports journalism."
+  },
+  {
+    "objectID": "text-analysis.html#load-packages",
+    "href": "text-analysis.html#load-packages",
+    "title": "Text Analysis - How Does the BBC Frame Sports News?",
+    "section": "Load Packages",
+    "text": "Load Packages\n\n# loading packages\nlibrary(tidyverse)\nlibrary(tidytext)\nlibrary(fs)\nlibrary(readr)\nlibrary(stringr)"
+  },
+  {
+    "objectID": "text-analysis.html#data-wrangling",
+    "href": "text-analysis.html#data-wrangling",
+    "title": "Text Analysis - How Does the BBC Frame Sports News?",
+    "section": "Data Wrangling",
+    "text": "Data Wrangling\n\n# Locate all text files in the BBC Sport dataset.\n# recurse = TRUE allows R to search inside each sport category folder.\narticle_files &lt;- dir_ls(\"bbcsport\", recurse = TRUE, glob = \"*.txt\")\n\n# Create one dataset where each row represents one article.\n# category identifies the sport folder, article_id identifies the file,\n# and text stores the full article text.\narticles &lt;- tibble(file_path = article_files) %&gt;%\n  mutate(\n    category = path_file(path_dir(file_path)),\n    article_id = path_file(file_path),\n    text = map_chr(file_path, read_file)\n  )\n\n\n# Extract the headline from each article.\n# The headline appears as the first line of each text file.\narticles &lt;- articles %&gt;%\n  mutate(\n    headline = str_extract(text, \"^[^\\n]+\")\n  )\n\n\n# Clean the article text and tokenize it into individual words.\n# Numbers and extra spaces are removed before tokenization.\n# Stop words are removed so the analysis focuses on more meaningful terms.\narticle_words &lt;- articles %&gt;%\n  mutate(\n    text_clean = str_to_lower(text),\n    text_clean = str_replace_all(text_clean, \"[0-9]+\", \" \"),\n    text_clean = str_replace_all(text_clean, \"\\\\s+\", \" \")\n  ) %&gt;%\n  unnest_tokens(word, text_clean) %&gt;%\n  anti_join(stop_words, by = \"word\")"
+  },
+  {
+    "objectID": "text-analysis.html#distinctive-words-by-sport",
+    "href": "text-analysis.html#distinctive-words-by-sport",
+    "title": "Text Analysis - How Does the BBC Frame Sports News?",
+    "section": "Distinctive Words by Sport",
+    "text": "Distinctive Words by Sport\nTo identify the words most distinctive to each sport category, I calculated tf-idf scores. A higher tf-idf score means that a word appears frequently within one sport category but is relatively uncommon across the other categories.\n\n# Count how often each word appears in each sport category.\n# bind_tf_idf() calculates the tf-idf score for each word/category pair.\nsport_tfidf &lt;- article_words %&gt;%\n  count(category, word, sort = TRUE) %&gt;%\n  bind_tf_idf(word, category, n)\n\n# Select the 10 words with the highest tf-idf scores within each sport.\ntop_sport_tfidf &lt;- sport_tfidf %&gt;%\n  group_by(category) %&gt;%\n  slice_max(tf_idf, n = 10) %&gt;%\n  ungroup()\n\n\n# Visualize the most distinctive words in each sport category.\ntop_sport_tfidf %&gt;%\n  mutate(word = reorder_within(word, tf_idf, category)) %&gt;%\n  ggplot(aes(x = tf_idf, y = word)) +\n  geom_col() +\n  facet_wrap(~ category, scales = \"free_y\") +\n  scale_y_reordered() +\n  labs(\n    title = \"Distinctive Words by BBC Sport Categories\",\n    subtitle = \"Highest tf-idf words are frequent within one sport and relatively rare in others\",\n    x = \"tf-idf\",\n    y = NULL\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\n\nThe tf-idf analysis shows that each BBC Sport category developed its own distinctive vocabulary. Football articles were strongly associated with club names and major football figures, while tennis coverage centered more heavily on individual athletes. Cricket included more technical and national terms, and rugby emphasized players, teams, and sport-specific language."
+  },
+  {
+    "objectID": "text-analysis.html#headline-sentiment",
+    "href": "text-analysis.html#headline-sentiment",
+    "title": "Text Analysis - How Does the BBC Frame Sports News?",
+    "section": "Headline Sentiment",
+    "text": "Headline Sentiment\nNext, I examined the sentiment of BBC Sport headlines using the Bing sentiment lexicon. For each article headline, I calculated a sentiment score by subtracting the number of negative words from the number of positive words.\n\n# Tokenize the article headlines into individual words.\n# Stop words are removed before joining with the sentiment lexicon.\nheadline_words &lt;- articles %&gt;%\n  mutate(\n    headline_clean = str_to_lower(headline),\n    headline_clean = str_replace_all(headline_clean, \"[0-9]+\", \" \"),\n    headline_clean = str_replace_all(headline_clean, \"\\\\s+\", \" \")\n  ) %&gt;%\n  unnest_tokens(word, headline_clean) %&gt;%\n  anti_join(stop_words, by = \"word\")\n\n\n# Join headline words with the Bing sentiment lexicon.\n# Count positive and negative words in each headline.\nheadline_sentiment &lt;- headline_words %&gt;%\n  inner_join(get_sentiments(\"bing\"), by = \"word\") %&gt;%\n  count(category, article_id, sentiment) %&gt;%\n  pivot_wider(\n    names_from = sentiment,\n    values_from = n,\n    values_fill = 0\n  ) %&gt;%\n  mutate(\n    positive = coalesce(positive, 0),\n    negative = coalesce(negative, 0),\n    headline_sentiment_score = positive - negative\n  )\n\n\n# Join the sentiment scores back to the full headline dataset.\n# Headlines with no positive or negative words receive a sentiment score of 0.\nheadline_sentiment_full &lt;- articles %&gt;%\n  select(category, article_id, headline) %&gt;%\n  left_join(headline_sentiment, by = c(\"category\", \"article_id\")) %&gt;%\n  mutate(\n    positive = coalesce(positive, 0),\n    negative = coalesce(negative, 0),\n    headline_sentiment_score = coalesce(headline_sentiment_score, 0)\n  )\n\n\n# Visualize headline sentiment scores by sport category.\nggplot(\n  headline_sentiment_full,\n  aes(\n    x = headline_sentiment_score,\n    y = reorder(category, headline_sentiment_score, median)\n  )\n) +\n  geom_jitter(height = 0.12, alpha = 0.35, size = 1.8) +\n  stat_summary(\n    fun = mean,\n    geom = \"point\",\n    shape = 22,\n    size = 4.5,\n    fill = \"white\"\n  ) +\n  labs(\n    title = \"BBC Sport Headlines Are Mostly Neutral, but Some Sports Show More Variance\",\n    subtitle = \"Each small point represents one headline; the square is the sport average\",\n    x = \"Headline sentiment score (positive words minus negative words)\",\n    y = \"Sport\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\n\nThe sentiment analysis suggests that most BBC Sport headlines from 2004 to 2005 were relatively neutral, with many headlines clustering near a sentiment score of zero. However, some sports, especially football, showed wider variation in headline sentiment. This suggests that while BBC Sport maintained a professional news style, some sports still encouraged more emotionally expressive coverage and storytelling."
+  },
+  {
+    "objectID": "text-analysis.html#project-materials",
+    "href": "text-analysis.html#project-materials",
+    "title": "Text Analysis - How Does the BBC Frame Sports News?",
+    "section": "Project Materials",
+    "text": "Project Materials\n\nData Source: BBC Sport Dataset"
+  },
+  {
+    "objectID": "paper-analysis.html",
+    "href": "paper-analysis.html",
+    "title": "Statistical Modeling: The Two Cultures",
+    "section": "",
+    "text": "In my final project in my advanced data computing class, Binh Vu and I analyzed and produced a poster in R about a paper called “Statistical Modeling: The Two Cultures,” which was written by Leo Breiman in 2001. We discussed how he passionately backed algorithmic modeling (he invented Random Forests!) in a statistical culture that, at the time, mainly used data modeling."
+  },
+  {
+    "objectID": "paper-analysis.html#overview",
+    "href": "paper-analysis.html#overview",
+    "title": "Statistical Modeling: The Two Cultures",
+    "section": "",
+    "text": "In my final project in my advanced data computing class, Binh Vu and I analyzed and produced a poster in R about a paper called “Statistical Modeling: The Two Cultures,” which was written by Leo Breiman in 2001. We discussed how he passionately backed algorithmic modeling (he invented Random Forests!) in a statistical culture that, at the time, mainly used data modeling."
+  },
+  {
+    "objectID": "paper-analysis.html#main-argument",
+    "href": "paper-analysis.html#main-argument",
+    "title": "Statistical Modeling: The Two Cultures",
+    "section": "Main Argument",
+    "text": "Main Argument\nBreiman argued that algorithmic modeling should be a significant part of a statistician’s toolbox. He believed that statisticians were choosing to use data models out of habit, rather than allowing their goals and datasets to guide their methods. He highlighted that robustness checks for data models were not as strong as they seemed, and thoughtlessly using the wrong model would lead to biased results. He suggested that, when predictive power was a higher priority than interpretability, algorithmic models would be a better choice for data scientists."
+  },
+  {
+    "objectID": "paper-analysis.html#tradeoffs",
+    "href": "paper-analysis.html#tradeoffs",
+    "title": "Statistical Modeling: The Two Cultures",
+    "section": "Tradeoffs",
+    "text": "Tradeoffs\nBut when a statistician decides to use an algorithmic model, they must trade away their model’s interpretability. Algorithmic models’ functions are much more complicated compared to those of straightforward data models. They treat the black box of nature as unknown, and strive to create a complicated function that emulates nature as well as possible. Data models attempt to cleanly map out the relationships within the black box of nature, and thus must inherently be more simple for human interpretation.\nIn this manner, choosing a method between the two cultures of data and algorithmic modeling becomes a balancing act of what to prioritize: interpretability, or prediction accuracy? The correct answer lies in the context of the problem. For example, in predicting patient outcomes, algorithmic models may be the better choice for their superior predictive ability. However, when exploring relationships, such as how age affects salary, data models likely fit the problem and the goals of the statistician better."
+  },
+  {
+    "objectID": "paper-analysis.html#impact",
+    "href": "paper-analysis.html#impact",
+    "title": "Statistical Modeling: The Two Cultures",
+    "section": "Impact",
+    "text": "Impact\nSince the paper was published, algorithmic models have become more and more common, especially because the problems data scientists face have become more and more complicated. With lots of variables, weak contributing signals across many features, and highly non-linear data structures, these problems suit algorithmic models well. Breiman predicted that this would happen as the problems we face advance.\nOver a quarter of a century ago, however, algorithmic models were much less common. This paper advocated for their use, and opened the door to a whole new side of data science, with new and exciting capabilities. Since then, we have seen large strides in these complex models, which have even eventually led to large language models and AI. Algorithmic models continue to be developed and explored, and likely will play a part in solving many pressing questions in this century."
+  },
+  {
+    "objectID": "paper-analysis.html#project-materials",
+    "href": "paper-analysis.html#project-materials",
+    "title": "Statistical Modeling: The Two Cultures",
+    "section": "Project Materials",
+    "text": "Project Materials\n\nView Poster"
+  },
+  {
     "objectID": "projects.html",
     "href": "projects.html",
     "title": "Projects",
@@ -75,5 +264,12 @@
     "title": "Projects",
     "section": "Featured Projects",
     "text": "Featured Projects\n\nSenior Research Project\nMy senior research project examined whether early European carbon taxes reduced national CO₂ emissions per capita in the 5 years following tax implementation. I used panel data methods and event study techniques to analyze policy impacts across European countries.\nView Senior Research Project\n\n\nSQL Project\nThis project focused on using SQL to query, organize, and analyze structured data. Through this project, I practiced joining tables, filtering observations, summarizing data, and using relational databases to examine exoplanet data from the NASA exoplanet archive.\nView SQL Project\n\n\nText Analysis\nThis project used text analysis methods to examine patterns in written data. I practiced transforming raw text into structured data and applying tools such as tokenization, sentiment analysis, and tf-idf, while analyzing soccer journalism.\nView Text Analysis\n\n\nMy R Package\nFor this project, I developed an R package designed to help tune K-nearest neighbors models. This project gave me experience with package development, documentation, and unit testing.\nView My R Package\n\n\nPaper Analysis\nThis project focused on reading, analyzing, and clearly communicating the ideas of “Statistical Modeling: The Two Cultures,” by Leo Breiman (2001). It helped me practice connecting technical methods to broader research questions and explaining statistical ideas clearly, while working in a small team.\nView Paper Analysis"
+  },
+  {
+    "objectID": "interests.html",
+    "href": "interests.html",
+    "title": "Interests",
+    "section": "",
+    "text": "Outside of my academic work in economics, data science, and statistics, I enjoy activities that combine music, teamwork, and communication.\nDuring my time at Lawrence University, I was the captain of the Men’s Soccer team for 2 years, where I practiced and improved leadership, communication, and discipline. I also had the chance to study abroad at Yonsei University, in Seoul, South Korea, where I explored my Korean-American identity. I have continued to study Korean at an intermediate level, and learn my culture through today.\nMusic is also a large part of my life. I play guitar and sing, and studied vocal performance at Lawrence under Dr. Cayla Rosche, focusing in contemporary music. I love singing pop music, both in Korean and English, and I run a music account aimed at bridging these two musical genres. Through music and performance, I have realized that I greatly enjoy connecting across cultures, and expressing ideas in creative ways.\nThese experiences have shaped how I approach my work - through collaboration, curiosity, and an aim for clear communication.\n\n\n\n\nSoccer\n\n\n\n\n\nMusic\n\n\n\n\n\nStudy Abroad\n\n\n\nThank you for reading a little bit about me!"
   }
 ]

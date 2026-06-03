@@ -20,7 +20,7 @@ This project focused on using SQL to query, organize, and analyze structured dat
 
 ### Text Analysis
 
-This project used text analysis methods to examine patterns in written data. I practiced transforming raw text into structured data and applying tools such as tokenization, sentiment analysis, and tf-idf, while analyzing soccer journalism.
+This project used text analysis methods to examine patterns in written data. I practiced transforming raw text into structured data and applying tools such as tokenization, sentiment analysis, and tf-idf, while analyzing sports journalism.
 
 [View Text Analysis](text-analysis.qmd)
 

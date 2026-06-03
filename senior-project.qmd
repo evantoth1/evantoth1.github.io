@@ -12,11 +12,11 @@ Did early European carbon taxes reduce national CO₂ emissions per capita in th
 
 ## Data
 
-I used country-level panel data for European countries from 1985 to 2004, with a final dataset containing 1,160 observations in 27 variables, across 29 countries. The dataset included emissions data, carbon tax adoption timing, and economic and environmental controls such as GDP per capita and average annual temperature.
+I used country-level panel data for 29 European countries from 1985 to 2004, with a final dataset containing 1,160 observations across 27 variables. The dataset included emissions data, carbon tax adoption timing, and economic and environmental controls such as GDP per capita and average annual temperature.
 
 ## Methods
 
-To estimate the effects of carbon tax adoption, I used an Sun & Abraham event study framework with country and year fixed effects. This approach allowed me to compare emissions trends before and after carbon tax adoption while accounting for differences in adoption time, inherent country differences, and shocks across time.
+To estimate the effects of carbon tax adoption, I used a Sun & Abraham event study framework with country and year fixed effects. This approach allowed me to compare emissions trends before and after carbon tax adoption while accounting for differences in adoption timing, inherent country differences, and shocks across time.
 
 ## Key Findings
 

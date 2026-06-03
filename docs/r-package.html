@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>r-package – Evan Toth</title>
+<title>My R Package: knntuner – Evan Toth</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -140,15 +175,29 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#package-purpose" id="toc-package-purpose" class="nav-link" data-scroll-target="#package-purpose">Package Purpose</a></li>
+  <li><a href="#main-functions" id="toc-main-functions" class="nav-link" data-scroll-target="#main-functions">Main Functions</a></li>
+  <li><a href="#example-workflow" id="toc-example-workflow" class="nav-link" data-scroll-target="#example-workflow">Example Workflow</a>
+  <ul class="collapse">
+  <li><a href="#installation" id="toc-installation" class="nav-link" data-scroll-target="#installation">Installation</a></li>
+  <li><a href="#workflow" id="toc-workflow" class="nav-link" data-scroll-target="#workflow">Workflow</a></li>
+  </ul></li>
+  <li><a href="#project-materials" id="toc-project-materials" class="nav-link" data-scroll-target="#project-materials">Project Materials</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">r-package</h1>
+<h1 class="title">My R Package: knntuner</h1>
 </div>
 
 
@@ -165,8 +214,112 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p><code>knntuner</code> is an R package I developed for my Advanced Data Computing course. The package is designed to streamline parts of the K-nearest neighbors modeling workflow in <code>caret</code> by helping users create tuning grids, define cross-validation settings, and identify the best-performing value of (k).</p>
+<p>The goal of the package is to make KNN tuning more efficient and accessible for students learning statistical machine learning in R, especially for students in STATS 205 - Statistical Machine Learning at Lawrence University. Please see the Github Repo and package website (below!) for more information.</p>
+</section>
+<section id="package-purpose" class="level2">
+<h2 class="anchored" data-anchor-id="package-purpose">Package Purpose</h2>
+<p>K-nearest neighbors models often require repeated code for cross-validation and tuning different values of (k) when working with the <code>caret</code> package. <code>knntuner</code> helps simplify this workflow through a small set of helper functions.</p>
+</section>
+<section id="main-functions" class="level2">
+<h2 class="anchored" data-anchor-id="main-functions">Main Functions</h2>
+<ul>
+<li><code>kgrid()</code> creates a data frame of candidate (k) values for model tuning.</li>
+<li><code>cv_control()</code> creates cross-validation specifications using <code>caret</code>.</li>
+<li><code>bestk()</code> identifies the best-performing (k) value from a trained model.</li>
+</ul>
+</section>
+<section id="example-workflow" class="level2">
+<h2 class="anchored" data-anchor-id="example-workflow">Example Workflow</h2>
+<p>The package includes a simulated student performance dataset called <code>student_knn_data</code>. Below, I go through a sample workflow using <code>knntuner</code> and its dataset <code>student_knn_data</code>.</p>
+<p>In the example, make sure to run each of the code chunks in the same order that they are presented below - they represent the basic statistical machine learning workflow. Please see the vignette on the package website for more detailed information on each package function, and ways to customize their outputs.</p>
+<section id="installation" class="level3">
+<h3 class="anchored" data-anchor-id="installation">Installation</h3>
+<p>You can install the development version of <code>knntuner</code> from <a href="https://github.com/">GitHub</a> with:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("remotes")</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("devtools")</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"ADC-405-S26/knntuner"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="workflow" class="level3">
+<h3 class="anchored" data-anchor-id="workflow">Workflow</h3>
+<p>This is a basic example which shows how <code>knntuner</code> can be used in the STATS 205 KNN model building and tuning workflow.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knntuner)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rsample)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(caret)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(recipes)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># necessary packages</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>In this package, there is a small simulated dataset of 100 observations in 6 variables. The data measure student characteristics, and track their performance. A head of the dataset can be seen below, and further information on each variable can be found in the vignette on the package website.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(student_knn_data) <span class="co"># simulated dataset as a part of knntuner (100 observations)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  id age study_hours     score private_tutoring pass
+1  1  18          12 100.00000               NO  YES
+2  2  21           7  66.49531              YES   NO
+3  3  18          10  82.54343              YES  YES
+4  4  18           8  50.57019              YES   NO
+5  5  20          12  85.38308              YES  YES
+6  6  21           5  63.46618              YES   NO</code></pre>
+</div>
+</div>
+<p>First, start with the standard split of data into a training set and a test set. This example uses the student dataset built into the package.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">208</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>knntuner_data_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(<span class="at">data =</span> student_knn_data, <span class="at">prop =</span> <span class="fl">0.8</span>) <span class="co"># setting training data to be 80%, and test data to be 20%, and saving these settings as an object</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>student_train <span class="ot">&lt;-</span> <span class="fu">training</span>(knntuner_data_split) <span class="co"># training data</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>student_test  <span class="ot">&lt;-</span> <span class="fu">testing</span>(knntuner_data_split) <span class="co"># test data</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Next, create a recipe to remove the ID column, dummy-code categorical predictors, and scale the numeric predictors for KNN, to prepare the data for analysis.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>student_recipe <span class="ot">&lt;-</span> <span class="fu">recipe</span>(pass <span class="sc">~</span> ., <span class="at">data =</span> student_train) <span class="sc">|&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_rm</span>(id) <span class="sc">|&gt;</span> <span class="co"># ID will not be used as a predictor</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">|&gt;</span> <span class="co"># dummy encoding nominal categorical variables</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_center</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">|&gt;</span> <span class="co"># normalizing numeric values step 1</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_scale</span>(<span class="fu">all_numeric_predictors</span>()) <span class="co"># normalizing numeric values step 2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Then, define your cross-validation specifications with the <code>cv_control</code> function.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>cv <span class="ot">&lt;-</span> <span class="fu">cv_control</span>() <span class="co"># creating the cv specifications and storing them as cv</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Next, you can train and cross-validate your model using the specifications that you set. Firstly, use the <code>kgrid</code> function to quickly create a dataframe to hold the cross-validation results for each k value. <code>kgrid</code> allows you to choose the minimum and maximum k values to test, as well as the step size to take.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">208</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>k_grid <span class="ot">&lt;-</span> <span class="fu">kgrid</span>(<span class="dv">1</span>, <span class="dv">9</span>, <span class="dv">2</span>) <span class="co"># knntuner function here, creating the desired kgrid and storing it as an object</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>student_model <span class="ot">&lt;-</span> <span class="fu">train</span>(</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  student_recipe,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> student_train,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">"knn"</span>,</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">trControl =</span> cv, <span class="co"># knntuner object here!</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">tuneGrid =</span> k_grid, <span class="co"># knntuner object here!</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">metric =</span> <span class="st">"Sens"</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Finally, use the <code>bestk</code> function to identify the best performing k value to choose for your final model! Now, you can move on to training your final model, and analyzing its performance on the test data.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bestk</span>(student_model) <span class="co"># finding the optimal k value!</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  k       ROC      Sens      Spec     ROCSD     SensSD    SpecSD
+4 7 0.9443204 0.9277778 0.8642857 0.0415595 0.06617294 0.1014877</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="project-materials" class="level2">
+<h2 class="anchored" data-anchor-id="project-materials">Project Materials</h2>
+<ul>
+<li><a href="https://github.com/ADC-405-S26/knntuner">View GitHub Repository</a></li>
+<li><a href="https://adc-405-s26.github.io/knntuner/">View Package Website</a></li>
+</ul>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

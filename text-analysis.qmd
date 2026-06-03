@@ -1,5 +1,191 @@
 ---
-title: "text-analysis"
+title: "Text Analysis - How Does the BBC Frame Sports News?"
 format: html
 ---
 
+
+**NOTE: This project was completed jointly with Frank (Minh) Nguyen. This page highlights the sections of the project that I primarily worked on, and where we collaborated.**
+
+## Overview
+
+For this project, my partner and I used text analysis methods to examine how BBC Sport framed different sports through language and sentiment. We analyzed a dataset of BBC Sport articles from 2004 to 2005, focusing on how word choice, headline sentiment, and sport-specific vocabulary differed across categories such as football, cricket, rugby, tennis, and athletics.
+
+The project involved cleaning raw text files, tokenizing article text, removing stop words, calculating sentiment scores, using tf-idf to identify distinctive words, and creating visualizations to interpret patterns in sports journalism.
+
+## Load Packages
+
+```{r}
+#| message: false
+#| warning: false
+
+# loading packages
+library(tidyverse)
+library(tidytext)
+library(fs)
+library(readr)
+library(stringr)
+```
+
+## Data Wrangling
+
+```{r}
+# Locate all text files in the BBC Sport dataset.
+# recurse = TRUE allows R to search inside each sport category folder.
+article_files <- dir_ls("bbcsport", recurse = TRUE, glob = "*.txt")
+
+# Create one dataset where each row represents one article.
+# category identifies the sport folder, article_id identifies the file,
+# and text stores the full article text.
+articles <- tibble(file_path = article_files) %>%
+  mutate(
+    category = path_file(path_dir(file_path)),
+    article_id = path_file(file_path),
+    text = map_chr(file_path, read_file)
+  )
+```
+
+```{r}
+# Extract the headline from each article.
+# The headline appears as the first line of each text file.
+articles <- articles %>%
+  mutate(
+    headline = str_extract(text, "^[^\n]+")
+  )
+```
+
+```{r}
+# Clean the article text and tokenize it into individual words.
+# Numbers and extra spaces are removed before tokenization.
+# Stop words are removed so the analysis focuses on more meaningful terms.
+article_words <- articles %>%
+  mutate(
+    text_clean = str_to_lower(text),
+    text_clean = str_replace_all(text_clean, "[0-9]+", " "),
+    text_clean = str_replace_all(text_clean, "\\s+", " ")
+  ) %>%
+  unnest_tokens(word, text_clean) %>%
+  anti_join(stop_words, by = "word")
+```
+
+## Distinctive Words by Sport
+
+To identify the words most distinctive to each sport category, I calculated tf-idf scores. A higher tf-idf score means that a word appears frequently within one sport category but is relatively uncommon across the other categories.
+
+```{r}
+# Count how often each word appears in each sport category.
+# bind_tf_idf() calculates the tf-idf score for each word/category pair.
+sport_tfidf <- article_words %>%
+  count(category, word, sort = TRUE) %>%
+  bind_tf_idf(word, category, n)
+
+# Select the 10 words with the highest tf-idf scores within each sport.
+top_sport_tfidf <- sport_tfidf %>%
+  group_by(category) %>%
+  slice_max(tf_idf, n = 10) %>%
+  ungroup()
+```
+
+```{r}
+#| fig-width: 10
+#| fig-height: 8
+
+# Visualize the most distinctive words in each sport category.
+top_sport_tfidf %>%
+  mutate(word = reorder_within(word, tf_idf, category)) %>%
+  ggplot(aes(x = tf_idf, y = word)) +
+  geom_col() +
+  facet_wrap(~ category, scales = "free_y") +
+  scale_y_reordered() +
+  labs(
+    title = "Distinctive Words by BBC Sport Categories",
+    subtitle = "Highest tf-idf words are frequent within one sport and relatively rare in others",
+    x = "tf-idf",
+    y = NULL
+  ) +
+  theme_minimal()
+```
+
+The tf-idf analysis shows that each BBC Sport category developed its own distinctive vocabulary. Football articles were strongly associated with club names and major football figures, while tennis coverage centered more heavily on individual athletes. Cricket included more technical and national terms, and rugby emphasized players, teams, and sport-specific language.
+
+## Headline Sentiment
+
+Next, I examined the sentiment of BBC Sport headlines using the Bing sentiment lexicon. For each article headline, I calculated a sentiment score by subtracting the number of negative words from the number of positive words.
+
+```{r}
+# Tokenize the article headlines into individual words.
+# Stop words are removed before joining with the sentiment lexicon.
+headline_words <- articles %>%
+  mutate(
+    headline_clean = str_to_lower(headline),
+    headline_clean = str_replace_all(headline_clean, "[0-9]+", " "),
+    headline_clean = str_replace_all(headline_clean, "\\s+", " ")
+  ) %>%
+  unnest_tokens(word, headline_clean) %>%
+  anti_join(stop_words, by = "word")
+```
+
+```{r}
+# Join headline words with the Bing sentiment lexicon.
+# Count positive and negative words in each headline.
+headline_sentiment <- headline_words %>%
+  inner_join(get_sentiments("bing"), by = "word") %>%
+  count(category, article_id, sentiment) %>%
+  pivot_wider(
+    names_from = sentiment,
+    values_from = n,
+    values_fill = 0
+  ) %>%
+  mutate(
+    positive = coalesce(positive, 0),
+    negative = coalesce(negative, 0),
+    headline_sentiment_score = positive - negative
+  )
+```
+
+```{r}
+# Join the sentiment scores back to the full headline dataset.
+# Headlines with no positive or negative words receive a sentiment score of 0.
+headline_sentiment_full <- articles %>%
+  select(category, article_id, headline) %>%
+  left_join(headline_sentiment, by = c("category", "article_id")) %>%
+  mutate(
+    positive = coalesce(positive, 0),
+    negative = coalesce(negative, 0),
+    headline_sentiment_score = coalesce(headline_sentiment_score, 0)
+  )
+```
+
+```{r}
+#| fig-width: 10
+#| fig-height: 6
+
+# Visualize headline sentiment scores by sport category.
+ggplot(
+  headline_sentiment_full,
+  aes(
+    x = headline_sentiment_score,
+    y = reorder(category, headline_sentiment_score, median)
+  )
+) +
+  geom_jitter(height = 0.12, alpha = 0.35, size = 1.8) +
+  stat_summary(
+    fun = mean,
+    geom = "point",
+    shape = 22,
+    size = 4.5,
+    fill = "white"
+  ) +
+  labs(
+    title = "BBC Sport Headlines Are Mostly Neutral, but Some Sports Show More Variance",
+    subtitle = "Each small point represents one headline; the square is the sport average",
+    x = "Headline sentiment score (positive words minus negative words)",
+    y = "Sport"
+  ) +
+  theme_minimal()
+```
+
+The sentiment analysis suggests that most BBC Sport headlines from 2004 to 2005 were relatively neutral, with many headlines clustering near a sentiment score of zero. However, some sports, especially football, showed wider variation in headline sentiment. This suggests that while BBC Sport maintained a professional news style, some sports still encouraged more emotionally expressive coverage and storytelling.
+
+## Project Materials
+
+- [Data Source: BBC Sport Dataset](https://github.com/derekgreene/bbc-datasets/tree/main)
