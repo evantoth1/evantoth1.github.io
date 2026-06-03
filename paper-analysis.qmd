@@ -27,3 +27,4 @@ Over a quarter of a century ago, however, algorithmic models were much less comm
 ## Project Materials
 
 - [View Poster](files/printedposter.pdf)
+- [Breiman's Paper](https://www.jstor.org/stable/2676681?seq=1)
