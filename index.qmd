@@ -1,7 +1,28 @@
 ---
-title: "project"
+title: "Welcome!"
+image: images/IMG_4244.jpg
+toc: false
+about: 
+  template: jolla
+  image-shape: round
+  image-width: 15em
 ---
 
-This is a Quarto website.
+::: {#bio}
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+Hi! I'm Evan Toth, a graduate of Lawrence University with a Bachelor of Arts degree in Economics–Mathematics and a minor in Data Science and Statistics. I am interested in using data analysis, teamwork, and clear communication to better understand and solve complex real-world problems.
+
+This website serves as my personal data science portfolio. It includes projects from my statistics and data science coursework, including work in statistical machine learning, text analysis, SQL, and applied modeling. I will also use this site to highlight professional experiences, independent projects, and other work that reflects my growth as a recent graduate and aspiring data analyst.
+
+Outside of academics, I was the captain of the Lawrence men's soccer team and enjoy playing guitar, singing, dance, and cross-cultural creative projects. In my junior year of university, I had the opportunity to study abroad at Yonsei University, in South Korea. In my free time, I run a music social media account, where I share Korean and English pop music across cultures. These experiences have shaped how I work with others, communicate ideas, and approach challenges creatively.
+
+Please visit my projects page to see examples of my work.
+
+::: {#landing-icons}
+[{{< fa brands github title="github" >}}](https://github.com/evantoth1){target="_blank"} &nbsp;
+[{{< fa brands linkedin title="linkedin" >}}](www.linkedin.com/in/evan-toth-301799274){target="_blank"} &nbsp;
+[{{< fa envelope title="envelope" >}}](mailto:evantoth17@gmail.com) &nbsp;
+[{{< fa brands instagram title="instagram" >}}](https://www.instagram.com/evan.toth1/){target="_blank"}
+:::
+
+:::
