@@ -3,12 +3,27 @@ project:
   output-dir: docs
 
 website:
-  title: "project"
+  title: "Evan Toth"
   navbar:
     left:
       - href: index.qmd
         text: Home
-      - about.qmd
+      - text: Projects
+        menu:
+          - href: projects.qmd
+            text: Projects Overview
+          - href: senior-project.qmd
+            text: Senior Research Project
+          - href: sql-project.qmd
+            text: SQL Project
+          - href: text-analysis.qmd
+            text: Text Analysis
+          - href: r-package.qmd
+            text: My R Package
+          - href: paper-analysis.qmd
+            text: Paper Analysis
+      - href: interests.qmd
+        text: Interests
 
 format:
   html:

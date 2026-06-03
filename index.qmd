@@ -1,5 +1,5 @@
 ---
-title: "Welcome!"
+title: "Hello!"
 image: images/IMG_4244.jpg
 toc: false
 about: 
@@ -20,9 +20,12 @@ Please visit my projects page to see examples of my work.
 
 ::: {#landing-icons}
 [{{< fa brands github title="github" >}}](https://github.com/evantoth1){target="_blank"} &nbsp;
-[{{< fa brands linkedin title="linkedin" >}}](www.linkedin.com/in/evan-toth-301799274){target="_blank"} &nbsp;
+[{{< fa brands linkedin title="linkedin" >}}](https://www.linkedin.com/in/evan-toth-301799274/){target="_blank"} &nbsp;
 [{{< fa envelope title="envelope" >}}](mailto:evantoth17@gmail.com) &nbsp;
 [{{< fa brands instagram title="instagram" >}}](https://www.instagram.com/evan.toth1/){target="_blank"}
 :::
+
+
+The code for this website is available on [GitHub](https://github.com/evantoth1/evantoth1.github.io).
 
 :::

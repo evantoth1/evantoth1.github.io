@@ -1,0 +1,37 @@
+---
+title: "Projects"
+---
+
+This page highlights selected projects from my coursework in advanced computing, my independent research in statistics, data science, economics, and applied analysis. These projects reflect my experience with statistical modeling, programming, and my attempts to answer real-world questions while in university.
+
+## Featured Projects
+
+### Senior Research Project
+
+My senior research project examined whether early European carbon taxes reduced national CO₂ emissions per capita in the 5 years following tax implementation. I used panel data methods and event study techniques to analyze policy impacts across European countries.
+
+[View Senior Research Project](senior-project.qmd)
+
+### SQL Project
+
+This project focused on using SQL to query, organize, and analyze structured data. Through this project, I practiced joining tables, filtering observations, summarizing data, and using relational databases to examine exoplanet data from the NASA exoplanet archive.
+
+[View SQL Project](sql-project.qmd)
+
+### Text Analysis
+
+This project used text analysis methods to examine patterns in written data. I practiced transforming raw text into structured data and applying tools such as tokenization, sentiment analysis, and tf-idf, while analyzing soccer journalism.
+
+[View Text Analysis](text-analysis.qmd)
+
+### My R Package
+
+For this project, I developed an R package designed to help tune K-nearest neighbors models. This project gave me experience with package development, documentation, and unit testing.
+
+[View My R Package](r-package.qmd)
+
+### Paper Analysis
+
+This project focused on reading, analyzing, and clearly communicating the ideas of "Statistical Modeling: The Two Cultures," by Leo Breiman (2001). It helped me practice connecting technical methods to broader research questions and explaining statistical ideas clearly, while working in a small team.
+
+[View Paper Analysis](paper-analysis.qmd)

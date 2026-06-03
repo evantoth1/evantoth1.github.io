@@ -1,5 +1,54 @@
 [
   {
+    "objectID": "senior-project.html",
+    "href": "senior-project.html",
+    "title": "Senior Research Project",
+    "section": "",
+    "text": "For my senior research project, I examined whether early European carbon taxes reduced national CO₂ emissions per capita in the 5 years following their implementation. This project combined applied econometrics, environmental policy analysis, and data visualization to study how carbon tax adoption affected emissions across European countries before the introduction of the European Union Emissions Trading System."
+  },
+  {
+    "objectID": "senior-project.html#overview",
+    "href": "senior-project.html#overview",
+    "title": "Senior Research Project",
+    "section": "",
+    "text": "For my senior research project, I examined whether early European carbon taxes reduced national CO₂ emissions per capita in the 5 years following their implementation. This project combined applied econometrics, environmental policy analysis, and data visualization to study how carbon tax adoption affected emissions across European countries before the introduction of the European Union Emissions Trading System."
+  },
+  {
+    "objectID": "senior-project.html#research-question",
+    "href": "senior-project.html#research-question",
+    "title": "Senior Research Project",
+    "section": "Research Question",
+    "text": "Research Question\nDid early European carbon taxes reduce national CO₂ emissions per capita in the short run?"
+  },
+  {
+    "objectID": "senior-project.html#data",
+    "href": "senior-project.html#data",
+    "title": "Senior Research Project",
+    "section": "Data",
+    "text": "Data\nI used country-level panel data for European countries from 1985 to 2004, with a final dataset containing 1,160 observations in 27 variables, across 29 countries. The dataset included emissions data, carbon tax adoption timing, and economic and environmental controls such as GDP per capita and average annual temperature."
+  },
+  {
+    "objectID": "senior-project.html#methods",
+    "href": "senior-project.html#methods",
+    "title": "Senior Research Project",
+    "section": "Methods",
+    "text": "Methods\nTo estimate the effects of carbon tax adoption, I used an Sun & Abraham event study framework with country and year fixed effects. This approach allowed me to compare emissions trends before and after carbon tax adoption while accounting for differences in adoption time, inherent country differences, and shocks across time."
+  },
+  {
+    "objectID": "senior-project.html#key-findings",
+    "href": "senior-project.html#key-findings",
+    "title": "Senior Research Project",
+    "section": "Key Findings",
+    "text": "Key Findings\nThe results suggested that early European carbon taxes did not lead to large or statistically significant short-run reductions in national CO₂ emissions per capita. This may be because the first taxes were much less intense than carbon taxes today. However, additional analysis suggested some evidence of modest shifts in fossil fuel energy use following adoption."
+  },
+  {
+    "objectID": "senior-project.html#project-materials",
+    "href": "senior-project.html#project-materials",
+    "title": "Senior Research Project",
+    "section": "Project Materials",
+    "text": "Project Materials\n\nView GitHub Repository\nView Final Paper"
+  },
+  {
     "objectID": "about.html",
     "href": "about.html",
     "title": "About",
@@ -9,8 +58,22 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Welcome!",
+    "title": "Hello!",
     "section": "",
-    "text": "Hi! I’m Evan Toth, a graduate of Lawrence University with a Bachelor of Arts degree in Economics–Mathematics and a minor in Data Science and Statistics. I am interested in using data analysis, teamwork, and clear communication to better understand and solve complex real-world problems.\nThis website serves as my personal data science portfolio. It includes projects from my statistics and data science coursework, including work in statistical machine learning, text analysis, SQL, and applied modeling. I will also use this site to highlight professional experiences, independent projects, and other work that reflects my growth as a recent graduate and aspiring data analyst.\nOutside of academics, I was the captain of the Lawrence men’s soccer team and enjoy playing guitar, singing, dance, and cross-cultural creative projects. In my junior year of university, I had the opportunity to study abroad at Yonsei University, in South Korea. In my free time, I run a music social media account, where I share Korean and English pop music across cultures. These experiences have shaped how I work with others, communicate ideas, and approach challenges creatively.\nPlease visit my projects page to see examples of my work."
+    "text": "Hi! I’m Evan Toth, a graduate of Lawrence University with a Bachelor of Arts degree in Economics–Mathematics and a minor in Data Science and Statistics. I am interested in using data analysis, teamwork, and clear communication to better understand and solve complex real-world problems.\nThis website serves as my personal data science portfolio. It includes projects from my statistics and data science coursework, including work in statistical machine learning, text analysis, SQL, and applied modeling. I will also use this site to highlight professional experiences, independent projects, and other work that reflects my growth as a recent graduate and aspiring data analyst.\nOutside of academics, I was the captain of the Lawrence men’s soccer team and enjoy playing guitar, singing, dance, and cross-cultural creative projects. In my junior year of university, I had the opportunity to study abroad at Yonsei University, in South Korea. In my free time, I run a music social media account, where I share Korean and English pop music across cultures. These experiences have shaped how I work with others, communicate ideas, and approach challenges creatively.\nPlease visit my projects page to see examples of my work.\n\n         \n\nThe code for this website is available on GitHub."
+  },
+  {
+    "objectID": "projects.html",
+    "href": "projects.html",
+    "title": "Projects",
+    "section": "",
+    "text": "This page highlights selected projects from my coursework in advanced computing, my independent research in statistics, data science, economics, and applied analysis. These projects reflect my experience with statistical modeling, programming, and my attempts to answer real-world questions while in university."
+  },
+  {
+    "objectID": "projects.html#featured-projects",
+    "href": "projects.html#featured-projects",
+    "title": "Projects",
+    "section": "Featured Projects",
+    "text": "Featured Projects\n\nSenior Research Project\nMy senior research project examined whether early European carbon taxes reduced national CO₂ emissions per capita in the 5 years following tax implementation. I used panel data methods and event study techniques to analyze policy impacts across European countries.\nView Senior Research Project\n\n\nSQL Project\nThis project focused on using SQL to query, organize, and analyze structured data. Through this project, I practiced joining tables, filtering observations, summarizing data, and using relational databases to examine exoplanet data from the NASA exoplanet archive.\nView SQL Project\n\n\nText Analysis\nThis project used text analysis methods to examine patterns in written data. I practiced transforming raw text into structured data and applying tools such as tokenization, sentiment analysis, and tf-idf, while analyzing soccer journalism.\nView Text Analysis\n\n\nMy R Package\nFor this project, I developed an R package designed to help tune K-nearest neighbors models. This project gave me experience with package development, documentation, and unit testing.\nView My R Package\n\n\nPaper Analysis\nThis project focused on reading, analyzing, and clearly communicating the ideas of “Statistical Modeling: The Two Cultures,” by Leo Breiman (2001). It helped me practice connecting technical methods to broader research questions and explaining statistical ideas clearly, while working in a small team.\nView Paper Analysis"
   }
 ]
